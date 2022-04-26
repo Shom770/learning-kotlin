@@ -23,11 +23,24 @@ class LinkedList {
         this.nodes.lastOrNull()?.next = node
         this.nodes.add(node)
     }
+
+    fun pop() : Node {
+        if (this.nodes.isEmpty()) {
+            throw java.lang.IndexOutOfBoundsException("Can't pop from empty linked list.")
+        }
+
+        if (this.nodes.size > 1) {
+            this.nodes[this.nodes.size - 2].next = null
+        }
+
+        return this.nodes.removeAt(this.nodes.size - 1)
+    }
 }
 
 var linkedList = LinkedList()
 
 linkedList.push(value=2)
 linkedList.push(value=3)
+
 
 println(linkedList.nodes)
