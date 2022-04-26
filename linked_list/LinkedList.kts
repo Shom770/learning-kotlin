@@ -53,6 +53,9 @@ class LinkedList() {
         return this
     }
 
+    infix fun linkWith(other: LinkedList) : LinkedList {
+        return this.plus(other)
+    }
 }
 
 var linkedList = LinkedList()
@@ -61,6 +64,6 @@ l2.push(value=2)
 
 linkedList.push(value=2)
 linkedList.push(value=3)
-println(linkedList + l2)
+println(linkedList linkWith l2)
 
 println(linkedList)
