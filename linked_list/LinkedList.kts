@@ -57,13 +57,3 @@ class LinkedList() {
         return this.plus(other)
     }
 }
-
-var linkedList = LinkedList()
-var l2 = LinkedList()
-l2.push(value=2)
-
-linkedList.push(value=2)
-linkedList.push(value=3)
-println(linkedList linkWith l2)
-
-println(linkedList)
