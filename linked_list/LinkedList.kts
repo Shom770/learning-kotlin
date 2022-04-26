@@ -12,7 +12,7 @@ class Node(value: Any?) {
     }
 }
 
-class LinkedList {
+class LinkedList() {
     var nodes: MutableList<Node> = mutableListOf()
 
     fun push(value: Any?) {
@@ -39,12 +39,28 @@ class LinkedList {
     override fun toString(): String {
         return this.nodes.toString()
     }
+
+    operator fun plus(other: LinkedList) : LinkedList {
+        if (other.nodes.isEmpty()) {
+            return this
+        }
+        else if (this.nodes.isEmpty()) {
+            return other
+        }
+
+        this.nodes.last().next = other.nodes[0]
+        this.nodes += other.nodes.subList(0, other.nodes.size)
+        return this
+    }
+
 }
 
 var linkedList = LinkedList()
+var l2 = LinkedList()
+l2.push(value=2)
 
 linkedList.push(value=2)
 linkedList.push(value=3)
-
+println(linkedList + l2)
 
 println(linkedList)
