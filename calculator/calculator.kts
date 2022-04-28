@@ -14,6 +14,11 @@ enum class TokenType {
 
 data class Token(val tokType: TokenType, val tokValue: String)
 
+// Nodes
+data class BinOpNode(val leftNode: Token, val opTok: Token, val rightNode: Token)
+data class UnaryNode(val opTok: Token, val node: Token)
+data class NumberNode(val numTok: Token)
+
 // Lexer
 
 class Lexer(text: String) {
