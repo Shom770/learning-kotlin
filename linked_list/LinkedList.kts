@@ -1,3 +1,5 @@
+import kotlin.reflect.KCallable
+
 class Node(value: Any?) {
     val value = value
     var next: Node? = null
@@ -53,7 +55,7 @@ class LinkedList() {
         return this
     }
 
-    infix fun linkWith(other: LinkedList) : LinkedList {
-        return this.plus(other)
+    infix fun linkTo(other: KCallable) : LinkedList {
+        return other
     }
 }
