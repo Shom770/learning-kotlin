@@ -106,10 +106,17 @@ class Parser(tokens: MutableList<Token>) {
     private fun factor(): Any {
         var token = this.current_tok
         this.advance()
+        var next_token = this.current_tok
 
         return when (token?.tokValue) {
-            "-" -> UnaryNode(opTok=token, num=this.current_tok?.tokValue)
-            "+" -> UnaryNode(opTok=token, num=this.current_tok?.tokValue)
+            "-" -> {
+                this.advance()
+                UnaryNode(opTok=token, num=next_token?.tokValue)
+            }
+            "+" -> {
+                this.advance()
+                UnaryNode(opTok=token, num=next_token?.tokValue)
+            }
             else -> NumberNode(num=token?.tokValue)
         }
     }
