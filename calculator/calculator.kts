@@ -15,9 +15,10 @@ enum class TokenType {
 data class Token(val tokType: TokenType, val tokValue: String)
 
 // Nodes
-data class BinOpNode(val leftNode: Token, val opTok: Token, val rightNode: Token)
-data class UnaryNode(val opTok: Token, val node: Token)
-data class NumberNode(val numTok: Token)
+
+data class BinOpNode(val leftNode: Any, val opTok: Token?, val rightNode: Any)
+data class UnaryNode(val opTok: Token?, val num: String?)
+data class NumberNode(val num: String?)
 
 // Lexer
 
@@ -81,5 +82,80 @@ class Lexer(text: String) {
         }
 
         return tokens
+    }
+}
+
+// Parser
+class Parser(tokens: MutableList<Token>) {
+    val tokens = tokens
+    var position = -1
+    var current_tok: Token? = null
+
+    private fun advance(occurrences: Int = 1) {
+        try {
+            for (i in 0 until occurrences) {
+                this.position += 1
+                this.current_tok = tokens[position]
+            }
+        } catch (e: IndexOutOfBoundsException) {
+            this.current_tok = null
+        }
+    }
+
+    // Parses numbers (negative and positive)
+    private fun factor(): Any {
+        var token = this.current_tok
+        this.advance()
+
+        return when (token?.tokValue) {
+            "-" -> UnaryNode(opTok=token, num=this.current_tok?.tokValue)
+            "+" -> UnaryNode(opTok=token, num=this.current_tok?.tokValue)
+            else -> NumberNode(num=token?.tokValue)
+        }
+    }
+
+    // Parses exponents
+    private fun pow(): Any {
+        var result = this.factor()
+
+        while (this.current_tok?.tokType == TokenType.POW) {
+            var symbol = this.current_tok
+            this.advance()
+            result = BinOpNode(result, symbol, this.factor())
+        }
+
+        return result
+    }
+
+    // Parses multiplication and division
+    private fun term(): Any {
+        var result = this.pow()
+
+        while (this.current_tok?.tokType in listOf(TokenType.MUL, TokenType.DIV)) {
+            var symbol = this.current_tok
+            this.advance()
+            result = BinOpNode(result, symbol, this.pow())
+        }
+
+        return result
+    }
+
+    // Parses addition and subtraction
+    private fun expr(): Any {
+        var result = this.term()
+
+        while (this.current_tok?.tokType in listOf(TokenType.PLUS, TokenType.MINUS)) {
+            var symbol = this.current_tok
+            this.advance()
+            result = BinOpNode(result, symbol, this.term())
+        }
+
+        return result
+    }
+
+    fun parse(): Any {
+        this.advance()
+
+        return this.expr()
     }
 }
