@@ -1,3 +1,6 @@
+import tokens
+
+
 class Lexer(text: String) {
     val text = text
     var position = -1
@@ -16,6 +19,12 @@ class Lexer(text: String) {
 
     fun lex() {
         this.advance()
+
+        while (this.current_char != null) {
+            var cur_token = when (this.current_char) {
+
+            }
+        }
     }
 }
 

@@ -8,7 +8,9 @@ enum class TokenType {
     MINUS,
     DIV,
     MUL,
-    POW
+    POW,
+    LPAREN,
+    RPAREN
 }
 
 data class Token(val tokType: TokenType, val tokValue: String)
