@@ -12,7 +12,7 @@ enum class TokenType {
     RPAREN
 }
 
-data class Token(val tokType: TokenType, val tokValue: Char)
+data class Token(val tokType: TokenType, val tokValue: String)
 
 // Lexer
 
@@ -32,31 +32,49 @@ class Lexer(text: String) {
         }
     }
 
-    fun lex() {
+    private fun make_int_or_float() : Token {
+        var tok_value = ""
+        while (
+            ((this.current_char.toString().toDoubleOrNull() != null) || this.current_char == '.')
+            && (this.current_char != null)
+        ) {
+            tok_value += this.current_char.toString()
+            this.advance()
+        }
+
+        return if ("." !in tok_value) Token(TokenType.INT, tok_value) else Token(TokenType.FLOAT, tok_value)
+    }
+
+    fun lex() : MutableList<Token> {
         this.advance()
-        var tokens: MutableList<tokens.Token> = mutableListOf()
+        var tokens: MutableList<Token> = mutableListOf()
 
         while (this.current_char != null) {
             // Skip whitespace
             if (this.current_char == ' ') {
+                this.advance()
                 continue
             }
             // Basic one-letter tokens
-            tokens.push(when (this.current_char) {
-                "+" -> tokens.Token(tokens.TokenType.PLUS, "+")
-                "-" -> tokens.Token(tokens.TokenType.MINUS, "-")
-                "/" -> tokens.Token(tokens.TokenType.DIV, "/")
-                "*" -> tokens.Token(tokens.TokenType.MUL, "*")
-                "^" -> tokens.Token(tokens.TokenType.POW, "^")
-            })
-
-            if ((this.current_char as String).toDoubleOrNull() != null) {
-                println(this.current_char)
+            var current_token = when (this.current_char) {
+                '+' -> Token(TokenType.PLUS, "+")
+                '-' -> Token(TokenType.MINUS, "-")
+                '/' -> Token(TokenType.DIV, "/")
+                '*' -> Token(TokenType.MUL, "*")
+                '^' -> Token(TokenType.POW, "^")
+                '(' -> Token(TokenType.LPAREN, "(")
+                ')' -> Token(TokenType.RPAREN, ")")
+                else -> null
             }
+
+            if (current_token == null) {
+                current_token = this.make_int_or_float()
+            }
+
+            this.advance()
+            tokens.add(current_token)
         }
+
+        return tokens
     }
 }
-
-var lexer = Lexer("1.2")
-
-lexer.lex()
