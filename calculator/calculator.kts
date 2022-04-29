@@ -175,20 +175,20 @@ class Interpreter(val ast: Any) {
         "NumberNode" to ::numberNode
     )
 
-    fun walk(node: Any = this.ast) {
-        println(node::class.simpleName)
+    fun walk(node: Any = this.ast): Double? {
+        return functionHashmap[node::class.simpleName]?.invoke(node)
     }
 
-    private fun binOpNode(node: BinOpNode) {
-        println(node)
+    private fun binOpNode(node: Any): Double {
+        return 3.0
     }
 
-    private fun unaryNode(node: BinOpNode) {
-        println(node)
+    private fun unaryNode(node: Any): Double {
+        return 2.0
     }
 
-    private fun numberNode(node: BinOpNode) {
-        println(node)
+    private fun numberNode(node: Any): Double {
+        return 1.0
     }
 }
 
