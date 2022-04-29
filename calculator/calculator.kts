@@ -1,5 +1,6 @@
-// Tokens
+import java.math.BigInteger
 
+// Tokens
 enum class TokenType {
     INT,
     FLOAT,
@@ -21,7 +22,6 @@ data class UnaryNode(val opTok: Token?, val num: String?)
 data class NumberNode(val num: String?)
 
 // Lexer
-
 class Lexer(text: String) {
     val text = text
     var position = -1
@@ -166,3 +166,36 @@ class Parser(tokens: MutableList<Token>) {
         return this.expr()
     }
 }
+
+// Interpreter
+class Interpreter(val ast: Any) {
+    protected val functionHashmap = hashMapOf(
+        "BinOpNode" to ::binOpNode,
+        "UnaryNode" to ::unaryNode,
+        "NumberNode" to ::numberNode
+    )
+
+    fun walk(node: Any = this.ast) {
+        println(node::class.simpleName)
+    }
+
+    private fun binOpNode(node: BinOpNode) {
+        println(node)
+    }
+
+    private fun unaryNode(node: BinOpNode) {
+        println(node)
+    }
+
+    private fun numberNode(node: BinOpNode) {
+        println(node)
+    }
+}
+
+var interpreter = Interpreter(
+    Parser(
+        Lexer("1.2 + 3").lex()
+    ).parse()
+)
+
+interpreter.walk()
