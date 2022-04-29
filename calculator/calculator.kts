@@ -1,3 +1,4 @@
+import jdk.incubator.vector.VectorOperators
 import java.math.BigInteger
 
 // Tokens
@@ -8,7 +9,6 @@ enum class TokenType {
     MINUS,
     DIV,
     MUL,
-    POW,
     LPAREN,
     RPAREN
 }
@@ -17,9 +17,9 @@ data class Token(val tokType: TokenType, val tokValue: String)
 
 // Nodes
 
-data class BinOpNode(val leftNode: Any, val opTok: Token?, val rightNode: Any)
-data class UnaryNode(val opTok: Token?, val num: String?)
-data class NumberNode(val num: String?)
+data class BinOpNode(val leftNode: Any, val opTok: Token, val rightNode: Any)
+data class UnaryNode(val opTok: Token, val num: String)
+data class NumberNode(val num: String)
 
 // Lexer
 class Lexer(text: String) {
@@ -67,7 +67,6 @@ class Lexer(text: String) {
                 '-' -> Token(TokenType.MINUS, "-")
                 '/' -> Token(TokenType.DIV, "/")
                 '*' -> Token(TokenType.MUL, "*")
-                '^' -> Token(TokenType.POW, "^")
                 '(' -> Token(TokenType.LPAREN, "(")
                 ')' -> Token(TokenType.RPAREN, ")")
                 else -> null
@@ -108,40 +107,43 @@ class Parser(tokens: MutableList<Token>) {
         this.advance()
         var next_token = this.current_tok
 
-        return when (token?.tokValue) {
+        if (token == null) {
+            throw Exception("Syntax Error.")
+        }
+
+        return when (token.tokValue) {
             "-" -> {
+                if (next_token == null) {
+                    throw Exception("Syntax Error.")
+                }
+
                 this.advance()
-                UnaryNode(opTok=token, num=next_token?.tokValue)
+                UnaryNode(opTok=token, num=next_token.tokValue)
             }
             "+" -> {
+                if (next_token == null) {
+                    throw Exception("Syntax Error.")
+                }
+
                 this.advance()
-                UnaryNode(opTok=token, num=next_token?.tokValue)
+                UnaryNode(opTok=token, num=next_token.tokValue)
             }
-            else -> NumberNode(num=token?.tokValue)
+            else -> NumberNode(num=token.tokValue)
         }
-    }
-
-    // Parses exponents
-    private fun pow(): Any {
-        var result = this.factor()
-
-        while (this.current_tok?.tokType == TokenType.POW) {
-            var symbol = this.current_tok
-            this.advance()
-            result = BinOpNode(result, symbol, this.factor())
-        }
-
-        return result
     }
 
     // Parses multiplication and division
     private fun term(): Any {
-        var result = this.pow()
+        var result = this.factor()
 
         while (this.current_tok?.tokType in listOf(TokenType.MUL, TokenType.DIV)) {
             var symbol = this.current_tok
+            if (symbol == null) {
+                break
+            }
+
             this.advance()
-            result = BinOpNode(result, symbol, this.pow())
+            result = BinOpNode(result, symbol, this.factor())
         }
 
         return result
@@ -153,6 +155,10 @@ class Parser(tokens: MutableList<Token>) {
 
         while (this.current_tok?.tokType in listOf(TokenType.PLUS, TokenType.MINUS)) {
             var symbol = this.current_tok
+            if (symbol == null) {
+                break
+            }
+
             this.advance()
             result = BinOpNode(result, symbol, this.term())
         }
@@ -180,33 +186,44 @@ class Interpreter(val ast: Any) {
     }
 
     private fun binOpNode(node: Any): Double {
+        if (node !is BinOpNode) {
+            throw ArithmeticException()
+        }
+
         var left_node = this.walk(node.leftNode)
         var right_node = this.walk(node.rightNode)
 
-        return when (node.opTok?.tok_value) {
+        if ((left_node == null) || (right_node == null)) {
+            throw ArithmeticException()
+        }
+
+        return when (node.opTok.tokValue) {
             "+" -> left_node + right_node
             "-" -> left_node - right_node
             "*" -> left_node * right_node
             "/" -> left_node / right_node
-            "^" -> {
-                var result = left_node
-
-                for (occ in 0 until right_node) {
-                    result *= left_node
-                }
-
-                result
-            }
-            else -> -999.0
+            else -> throw ArithmeticException()
         }
     }
 
     private fun unaryNode(node: Any): Double {
-        return 2.0
+        if (node !is UnaryNode) {
+            throw ArithmeticException()
+        }
+
+        return when (node.opTok.tokValue) {
+            "-" -> node.num.toDouble() * -1
+            "+" -> node.num.toDouble()
+            else -> throw ArithmeticException()
+        }
     }
 
     private fun numberNode(node: Any): Double {
-        return 1.0
+        if (node !is NumberNode) {
+            throw ArithmeticException()
+        }
+
+        return node.num.toDouble()
     }
 }
 
