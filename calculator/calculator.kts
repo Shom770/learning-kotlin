@@ -180,7 +180,25 @@ class Interpreter(val ast: Any) {
     }
 
     private fun binOpNode(node: Any): Double {
-        return 3.0
+        var left_node = this.walk(node.leftNode)
+        var right_node = this.walk(node.rightNode)
+
+        return when (node.opTok?.tok_value) {
+            "+" -> left_node + right_node
+            "-" -> left_node - right_node
+            "*" -> left_node * right_node
+            "/" -> left_node / right_node
+            "^" -> {
+                var result = left_node
+
+                for (occ in 0 until right_node) {
+                    result *= left_node
+                }
+
+                result
+            }
+            else -> -999.0
+        }
     }
 
     private fun unaryNode(node: Any): Double {
