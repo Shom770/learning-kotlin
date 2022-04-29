@@ -128,6 +128,12 @@ class Parser(tokens: MutableList<Token>) {
                 this.advance()
                 UnaryNode(opTok=token, num=next_token.tokValue)
             }
+            "(" -> {
+                var result = this.expr()
+                this.advance()
+
+                result
+            }
             else -> NumberNode(num=token.tokValue)
         }
     }
@@ -229,8 +235,8 @@ class Interpreter(val ast: Any) {
 
 var interpreter = Interpreter(
     Parser(
-        Lexer("1.2 + 3").lex()
+        Lexer("3 * (2 + 1)").lex()
     ).parse()
 )
 
-interpreter.walk()
+println(interpreter.walk())
